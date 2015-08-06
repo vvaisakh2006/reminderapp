@@ -1,0 +1,333 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <title>Dr.Reminder</title>
+        <link rel="stylesheet" href="css/reset.css">
+
+    <link rel="stylesheet" href="css/style.css" media="screen" type="text/css" />
+	<script type="text/javascript" src="PushNotification.js"></script>
+	 <script type="text/javascript" charset="utf-8" src="cordova.js"></script>
+	 <script type="text/javascript" src="SQLitePlugin.js"></script>
+     <script type="text/javascript" src="local-notification.js"></script>
+     
+  </head>       
+      
+     
+    <body onLoad="Javascript:plugin()">
+
+<div class="wrap">
+<div class="avatar">
+      <img src="logo3.png">
+		</div>
+		
+<input type="text" placeholder="Patient ID" id="pid"> 
+        <div class="bar">
+			<i></i>
+		</div><div class="bar">
+			<i></i>
+		</div>
+	  <p>&nbsp;</p>
+    
+    <button onClick="window.location.href='index1.html'"> Sign In</button>
+    <br>
+<br>
+
+    <button id="pp"> Register</button>
+   
+	</div> 
+        <!--<script type="text/javascript" charset="utf-8" src="cordova-2.2.0.js"></script>-->
+       
+        <script type="text/javascript" charset="utf-8" src="jquery_1.5.2.min.js"></script>
+        
+        
+        <script type="text/javascript">
+            var pushNotification;
+            
+            function onDeviceReady() {
+                //$("#app-status-ul").append('<li>deviceready event received</li>');
+                
+				document.addEventListener("backbutton", function(e)
+				{
+                	//$("#app-status-ul").append('<li>backbutton event received</li>');
+  					
+      				if( $("#home").length > 0)
+					{
+						// call this to get a new token each time. don't call it to reuse existing token.
+						//pushNotification.unregister(successHandler, errorHandler);
+						e.preventDefault();
+						navigator.app.exitApp();
+					}
+					else
+					{
+						navigator.app.backHistory();
+					}
+				}, false);
+			
+				try 
+				{ 
+                	pushNotification = window.plugins.pushNotification;
+		      //$("#app-status-ul").append('<li>registering ' + device.platform + '</li>');
+                	if (device.platform == 'android' || device.platform == 'Android' ||
+                            device.platform == 'amazon-fireos' ) {
+			pushNotification.register(successHandler, errorHandler, {"senderID":"670931029138","ecb":"onNotification"});		// required!
+					} else {
+                    	pushNotification.register(tokenHandler, errorHandler, {"badge":"true","sound":"true","alert":"true","ecb":"onNotificationAPN"});	// required!
+                	}
+                }
+				catch(err) 
+				{ 
+					txt="There was an error on this page.\n\n"; 
+					txt+="Error description: " + err.message + "\n\n"; 
+					alert(txt); 
+					
+				} 
+            }
+            
+                        
+            // handle GCM notifications for Android
+			var regid;
+            function onNotification(e) {
+				
+                //$("#app-status-ul").append('<li>EVENT -> RECEIVED:' + e.event + '</li>');
+                
+                switch( e.event )
+                {
+                    case 'registered':
+					if ( e.regid.length > 0 )
+					{
+						//$("#app-status-ul").append('<li>REGISTERED -> REGID:' + e.regid + "</li>");
+						$("#app-status-ul").append('Press the Register button If you are Using this app for the first time');
+						// Your GCM push server needs to know the regID before it can push to this device
+						// here is where you might want to send it the regID for later use.
+						console.log("regID = " + e.regid);
+						$("#pp").click(function(event){
+							event.preventDefault();
+    tokenHandler(e.regid);
+});
+					}
+                    break;
+                    
+                    case 'message':
+                    	// if this flag is set, this notification happened while we were in the foreground.
+                    	// you might want to play a sound to get the user's attention, throw up a dialog, etc.
+                    	if (e.foreground)
+                    	{
+							$("#app-status-ul").append('<li>--INLINE NOTIFICATION--' + '</li>');
+						      
+						        // on Android soundname is outside the payload. 
+					                // On Amazon FireOS all custom attributes are contained within payload
+					                var soundfile = e.soundname || e.payload.sound;
+					                // if the notification contains a soundname, play it.
+					                // playing a sound also requires the org.apache.cordova.media plugin
+					                var my_media = new Media("/android_asset/www/"+ soundfile);
+
+							my_media.play();
+						}
+						else
+						{	// otherwise we were launched because the user touched a notification in the notification tray.
+							if (e.coldstart)
+								$("#app-status-ul").append('<li>--COLDSTART NOTIFICATION--' + '</li>');
+							else
+							$("#app-status-ul").append('<li>--BACKGROUND NOTIFICATION--' + '</li>');
+						}
+											
+					//$("#app-status-ul").append('<li>MESSAGE -> MSG: ' + JSON.stringify(e.payload) + '</li>');<br>
+$("#app-status-ul").append('Prescription Received');
+ 
+
+
+  var db = window.sqlitePlugin.openDatabase({name: "drrem.db"});
+ $("#app-status-ul").append('NULL');
+db.transaction(function(tx)
+{   
+
+//$("#app-status-ul").append("testrun2");
+  tx.executeSql('DROP TABLE IF EXISTS Medicine');
+    tx.executeSql('CREATE TABLE IF NOT EXISTS Medicine (medicine_name text,tm_1 text,tm_2 text,tm_3 text,dosage text,diagnosis text,instructions text,date text,name text,age text,gender text,occupation text,mobile text,address text,blood text,allergy text)');  
+var totalItems = 16;
+    var currentArray = [];
+    var arr = [];
+    for (var key in e.payload) {
+        var prop = e.payload[key];		 
+		 currentArray.push(prop["medicine_name"]);
+		 currentArray.push(prop["tm_1"]);
+		 currentArray.push(prop["tm_2"]);
+		 currentArray.push(prop["tm_3"]);
+		 currentArray.push(prop["dosage"]);
+		 currentArray.push(prop["diagnosis"]);
+		 currentArray.push(prop["instructions"]);
+		 currentArray.push(prop["date"]);
+		 currentArray.push(prop["name"]);
+		 currentArray.push(prop["age"]);
+		 currentArray.push(prop["gender"]);
+		 currentArray.push(prop["occupation"]);
+		 currentArray.push(prop["mobile"]);
+		 currentArray.push(prop["address"]);
+		 currentArray.push(prop["blood"]);
+		 currentArray.push(prop["allergy"]);
+		 arr.push(currentArray);
+		 
+		 currentArray = [];
+		 
+    };
+    
+
+   
+   $("#app-status-ul").append(arr.length);
+   
+    for(var idx = 0; idx < arr.length; idx++)
+    {  
+        var j=arr[idx];
+		$("#app-status-ul").append("before insertion");
+	    tx.executeSql("INSERT INTO Medicine (medicine_name,tm_1,tm_2,tm_3,dosage,diagnosis,instructions,date,name,age,gender,occupation,mobile,address,blood,allergy) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", j, function(tx, result)
+         {
+             $("#app-status-ul").append("Insert succeed");
+             $("#app-status-ul").append(result);
+			 
+         });
+		 tx.executeSql("COMMIT");
+		 
+		 
+		 
+    }
+	
+});
+			
+  											
+						//android only
+						$("#app-status-ul").append('<li>MESSAGE -> MSGCNT: ' + e.payload.msgcnt + '</li>');
+                        //amazon-fireos only
+                        $("#app-status-ul").append('<li>MESSAGE -> TIMESTAMP: ' + e.payload.timeStamp + '</li>');
+                    break;
+                    
+                    case 'error':
+						$("#app-status-ul").append('<li>ERROR -> MSG:' + e.msg + '</li>');
+                    break;
+                    
+                    default:
+						$("#app-status-ul").append('<li>EVENT -> Unknown, an event was received and we do not know what it is</li>');
+                    break;
+                }
+			}
+            
+			function tokenHandler(regid) {
+		var pid=document.getElementById('pid').value;
+		var xmlhttp;
+		xmlhttp=new XMLHttpRequest();
+		xmlhttp.open("GET","http://www.drreminder.in/temp.php?token="+regid+"&pid="+pid,true);
+		xmlhttp.send();
+alert("You have registered successfully");
+}
+            function successHandler (result) {
+                //$("#app-status-ul").append('<li>success:'+ result +'</li>');
+            }
+            
+            function errorHandler (error) {
+                $("#app-status-ul").append('<li>error:'+ error +'</li>');
+            }
+            
+			document.addEventListener('deviceready', onDeviceReady, true);
+			
+
+         </script>
+         <script>
+		 function plugin()
+		 {
+		 
+		  var db = window.sqlitePlugin.openDatabase({name: "drrem.db", location: "/sdcard0/"});
+		 
+		 
+		 
+		 function queryDB(tx) {
+    tx.executeSql('SELECT * FROM Medicine', [], querySuccess, errorCB);
+}
+
+function querySuccess(tx, results) {
+    //$("#app-status-ul").append("Returned rows = " + results.rows.length);
+	var dm = new Date();
+    dm.setHours(9); 
+	dm.setMinutes(0);
+    dm.setSeconds(0);
+	var da = new Date();
+    da.setHours(13); 
+	da.setMinutes(0);
+    da.setSeconds(0);
+	var dd = new Date();
+    dd.setHours(20); 
+	dd.setMinutes(0);
+    dd.setSeconds(0);
+	for(var i=0; i < results.rows.length; i++)
+	{
+	
+	var a=results.rows.item(i).medicine_name;
+	
+	var o=new String("Time to take a "+a);
+	
+	var mor=results.rows.item(i).tm_1;
+	
+	var aft=results.rows.item(i).tm_2;
+	
+	var nig=results.rows.item(i).tm_3;
+	  for(var j=0;j < i; j++)
+	  {
+	if(mor==1&&aft==0&&nig==0)
+	{
+		
+	window.plugin.notification.local.add({ message: o,date: dm });
+	
+	
+	}
+	
+	else if(mor==0&&aft==1&&nig==0)
+	{
+		window.plugin.notification.local.add({ message: o,date: da });
+	}
+	else if(mor==0&&aft==1&&nig==1)
+	{
+		window.plugin.notification.local.add({ message: o,date: da });
+		window.plugin.notification.local.add({ message: o,date: dd});
+	}
+	else if(mor==0&&aft==0&&nig==1)
+	{
+		window.plugin.notification.local.add({ message: o,date: dd});
+	}
+	else if(mor==1&&aft==0&&nig==1)
+	{
+		window.plugin.notification.local.add({ message: o,date: dm });
+		window.plugin.notification.local.add({ message: o,date: dd });
+	}
+	else if(mor==1&&aft==1&&nig==0)
+	{
+		window.plugin.notification.local.add({ message: o,date: dm });
+		window.plugin.notification.local.add({ message: o,date: da });
+	}
+	else(mor==1&aft==1&&nig==1)
+	{
+		window.plugin.notification.local.add({ message: o,date: dm });
+		window.plugin.notification.local.add({ message: o,date: da });
+		window.plugin.notification.local.add({ message: o,date: dd });
+	}
+		}
+	}
+}
+
+function errorCB(err) {
+    $("#app-status-ul").append("Error processing SQL: "+err.code);
+}
+db.transaction(queryDB, errorCB);  			
+		 
+		 }
+		
+		 </script>
+		 
+		<div>
+        </div> 
+        
+		<div id="home">
+			<div id="app-status-div">
+				<ul id="app-status-ul">
+				</ul>
+			</div>
+		</div>
+    </body>
+</html>

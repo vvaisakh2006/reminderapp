@@ -1,0 +1,8 @@
+https://android.googleapis.com/gcm/send
+// Tick POST
+Authorization: key=AIzaSyC2tlNp2MNCERIEIhBALm7htFXYTCHPiGM
+
+{ "registration_ids": ["APA91bEnyqxipyG13oSKZGPFz2b7oE9JdJHLttJEQY7fJvoOtZEBE2nymbc_h1D2Vk-R4svn0vBDyyvnXbzV6h8kwtGVbwtIoG-R9sekDDfe6Ve0uzq3QCF_wLBVR5BanTWNcuNzvf70-wFG9o6OccxzPaBn-BfhpQ "], "data": { "message": "Push Notification for manjeshpv.com", "msgcnt": "1", "timeStamp": "Wed Aug 13 2014 09:22:25 GMT+0530 (India Standard Time)" }, }
+
+
+// Above registration_ids is mine
